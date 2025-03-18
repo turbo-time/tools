@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Generator</title>
+    <title>Grid PDF Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -47,6 +48,7 @@
     </style>
 </head>
 <body>
+    <h1>Grid PDF generator</h1>
     <div class="container">
         <div class="column">
             <label for="pageWidth">Page Width (inches):</label>
@@ -88,15 +90,16 @@
             const opacity = parseFloat(document.getElementById('opacity').value);
             const paperType = document.querySelector('input[name="paperType"]:checked').value;
 
+            const greyValue = Math.round(255 * (1 - opacity));
+            const greyColor = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
+
             canvas.width = 2 * dpi;
             canvas.height = 2 * dpi;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.globalAlpha = opacity;
-
             if (paperType === 'line') {
                 ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = 'black';
+                ctx.strokeStyle = greyColor;
 
                 for (let y = spacing; y < canvas.height; y += spacing) {
                     ctx.beginPath();
@@ -112,7 +115,7 @@
                     ctx.stroke();
                 }
             } else if (paperType === 'dot') {
-                ctx.fillStyle = 'black';
+                ctx.fillStyle = greyColor;
 
                 for (let y = spacing; y < canvas.height; y += spacing) {
                     for (let x = spacing; x < canvas.width; x += spacing) {
