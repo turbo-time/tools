@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,75 +8,154 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
         }
+
+        h1 {
+            color: #333;
+        }
+
         .container {
             display: flex;
-            flex-direction: row;
-            align-items: flex-start;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
         }
-        .column {
+
+        .row {
             display: flex;
             flex-direction: column;
-            margin: 0 10px;
+            margin-bottom: 20px;
         }
-        .column input, .column button {
-            margin: 5px;
-            margin-bottom: 15px;
+
+        .row label {
+            margin-top: 10px;
+            display: block;
+            color: #555;
         }
-        .column label {
-            margin-bottom: 1px;
+
+        .row input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
         }
-        #preview {
-            width: 2in;
-            height: 2in;
-            border: 1px solid black;
-            margin-bottom: 10px;
+
+        .controls {
+            display: flex;
+            flex-direction: column;
         }
-        @media (max-width: 600px) {
+
+        .controls div {
+            margin-top: 10px;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            background-color: white; /* Set background color to white */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (min-width: 600px) {
             .container {
-                flex-direction: column;
-                align-items: center;
+                flex-direction: row;
+                justify-content: space-between;
             }
-            h1 {
-                margin-top: 115px;
+
+            .row {
+                flex: 1;
+                margin-right: 20px;
+            }
+
+            .row:last-child {
+                margin-right: 0;
+            }
+
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .controls div {
+                flex: 1 1 45%;
+                margin-right: 10px;
+            }
+
+            .controls div:last-child {
+                margin-right: 0;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .row:last-child {
+                align-items: center; /* Center the preview pane on mobile */
             }
         }
     </style>
 </head>
+
 <body>
     <h1>Grid PDF generator</h1>
     <div class="container">
-        <div class="column">
+        <div class="row">
             <label for="pageWidth">Page Width (inches):</label>
             <input type="number" id="pageWidth" value="8.5" step="0.1">
             <label for="pageHeight">Page Height (inches):</label>
             <input type="number" id="pageHeight" value="11" step="0.1">
         </div>
-        <div class="column">
-            <label for="paperType">Grid Type:</label>
+        <div class="row controls">
             <div>
+                <label for="paperType">Grid Type:</label>
                 <input type="radio" id="lineGrid" name="paperType" value="line" checked>
                 <label for="lineGrid">Line</label>
                 <input type="radio" id="dotGrid" name="paperType" value="dot">
                 <label for="dotGrid">Dot</label>
             </div>
-            <label for="spacing">Spacing (inches):</label>
-            <input type="number" id="spacing" value="0.125" step="0.01">
-            <label for="lineWidth">Line Width (inches):</label>
-            <input type="number" id="lineWidth" value="0.01" step="0.001">
-            <label for="radius">Dot Radius (inches):</label>
-            <input type="number" id="radius" value="0.01" step="0.001">
-            <label for="opacity">Opacity (0 to 1):</label>
-            <input type="number" id="opacity" value="0.2" step="0.01" min="0" max="1">
+            <div>
+                <label for="spacing">Spacing (inches):</label>
+                <input type="number" id="spacing" value="0.125" step="0.01">
+            </div>
+            <div>
+                <label for="lineWidth">Line Width (inches):</label>
+                <input type="number" id="lineWidth" value="0.01" step="0.001">
+            </div>
+            <div>
+                <label for="radius">Dot Radius (inches):</label>
+                <input type="number" id="radius" value="0.01" step="0.001">
+            </div>
+            <div>
+                <label for="opacity">Opacity (0 to 1):</label>
+                <input type="number" id="opacity" value="0.2" step="0.01" min="0" max="1">
+            </div>
         </div>
-        <div class="column">
+        <div class="row">
             <label for="preview">Preview</label>
             <canvas id="preview"></canvas>
             <button id="generate">Generate</button>
@@ -105,6 +185,8 @@
             canvas.width = 2 * dpi;
             canvas.height = 2 * dpi;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white'; // Set background color to white
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             if (paperType === 'line') {
                 ctx.lineWidth = lineWidth;
@@ -191,4 +273,5 @@
         drawPreview();
     </script>
 </body>
+
 </html>
