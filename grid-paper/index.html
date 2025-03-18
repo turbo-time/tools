@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid Paper Generator</title>
+    <title>Paper Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -26,13 +26,22 @@
 </head>
 <body>
     <div class="container">
+        <label for="paperType">Grid Type:</label>
+        <div>
+            <input type="radio" id="lineGrid" name="paperType" value="line" checked>
+            <label for="lineGrid">Line</label>
+            <input type="radio" id="dotGrid" name="paperType" value="dot">
+            <label for="dotGrid">Dot</label>
+        </div>
         <label for="dpi">DPI:</label>
         <input type="number" id="dpi" value="300">
         <label for="spacing">Spacing (inches):</label>
         <input type="number" id="spacing" value="0.125" step="0.01">
         <label for="lineWidth">Line Width (inches):</label>
         <input type="number" id="lineWidth" value="0.01" step="0.001">
-        <label for="opacity">Line Opacity (0 to 1):</label>
+        <label for="radius">Dot Radius (inches):</label>
+        <input type="number" id="radius" value="0.01" step="0.001">
+        <label for="opacity">Opacity (0 to 1):</label>
         <input type="number" id="opacity" value="0.2" step="0.01" min="0" max="1">
         <label for="pageWidth">Page Width (inches):</label>
         <input type="number" id="pageWidth" value="8.5" step="0.1">
@@ -53,20 +62,32 @@
             const dpi = parseFloat(document.getElementById('dpi').value);
             const spacing = parseFloat(document.getElementById('spacing').value);
             const lineWidth = parseFloat(document.getElementById('lineWidth').value);
+            const radius = parseFloat(document.getElementById('radius').value);
             const opacity = parseFloat(document.getElementById('opacity').value);
+            const paperType = document.querySelector('input[name="paperType"]:checked').value;
 
-            doc.setLineWidth(lineWidth);
-            doc.setDrawColor(0, 0, 0, opacity);
+            if (paperType === 'line') {
+                doc.setLineWidth(lineWidth);
+                doc.setDrawColor(0, 0, 0, opacity);
 
-            for (let y = spacing; y < pageHeight; y += spacing) {
-                doc.line(0, y, pageWidth, y);
+                for (let y = spacing; y < pageHeight; y += spacing) {
+                    doc.line(0, y, pageWidth, y);
+                }
+
+                for (let x = spacing; x < pageWidth; x += spacing) {
+                    doc.line(x, 0, x, pageHeight);
+                }
+            } else if (paperType === 'dot') {
+                doc.setFillColor(0, 0, 0, opacity);
+
+                for (let y = spacing; y < pageHeight; y += spacing) {
+                    for (let x = spacing; x < pageWidth; x += spacing) {
+                        doc.circle(x, y, radius, 'F');
+                    }
+                }
             }
 
-            for (let x = spacing; x < pageWidth; x += spacing) {
-                doc.line(x, 0, x, pageHeight);
-            }
-
-            doc.save('grid_paper.pdf');
+            doc.save(`${paperType}_paper.pdf`);
         });
     </script>
 </body>
