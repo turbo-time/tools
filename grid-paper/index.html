@@ -16,40 +16,118 @@
         }
         .container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row;
+            align-items: flex-start;
         }
-        .container label, .container input, .container button {
-            margin: 5px 0;
+        .column {
+            display: flex;
+            flex-direction: column;
+            margin: 0 10px;
+        }
+        .column input, .column button {
+            margin: 5px;
+            margin-bottom: 15px;
+        }
+        .column label {
+            margin-bottom: 1px;
+        }
+        #preview {
+            width: 2in;
+            height: 2in;
+            border: 1px solid black;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 80px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <label for="paperType">Grid Type:</label>
-        <div>
-            <input type="radio" id="lineGrid" name="paperType" value="line" checked>
-            <label for="lineGrid">Line</label>
-            <input type="radio" id="dotGrid" name="paperType" value="dot">
-            <label for="dotGrid">Dot</label>
+        <div class="column">
+            <label for="pageWidth">Page Width (inches):</label>
+            <input type="number" id="pageWidth" value="8.5" step="0.1">
+            <label for="pageHeight">Page Height (inches):</label>
+            <input type="number" id="pageHeight" value="11" step="0.1">
         </div>
-        <label for="dpi">DPI:</label>
-        <input type="number" id="dpi" value="300">
-        <label for="spacing">Spacing (inches):</label>
-        <input type="number" id="spacing" value="0.125" step="0.01">
-        <label for="lineWidth">Line Width (inches):</label>
-        <input type="number" id="lineWidth" value="0.01" step="0.001">
-        <label for="radius">Dot Radius (inches):</label>
-        <input type="number" id="radius" value="0.01" step="0.001">
-        <label for="opacity">Opacity (0 to 1):</label>
-        <input type="number" id="opacity" value="0.2" step="0.01" min="0" max="1">
-        <label for="pageWidth">Page Width (inches):</label>
-        <input type="number" id="pageWidth" value="8.5" step="0.1">
-        <label for="pageHeight">Page Height (inches):</label>
-        <input type="number" id="pageHeight" value="11" step="0.1">
-        <button id="generate">Generate</button>
+        <div class="column">
+            <label for="paperType">Grid Type:</label>
+            <div>
+                <input type="radio" id="lineGrid" name="paperType" value="line" checked>
+                <label for="lineGrid">Line</label>
+                <input type="radio" id="dotGrid" name="paperType" value="dot">
+                <label for="dotGrid">Dot</label>
+            </div>
+            <label for="spacing">Spacing (inches):</label>
+            <input type="number" id="spacing" value="0.125" step="0.01">
+            <label for="lineWidth">Line Width (inches):</label>
+            <input type="number" id="lineWidth" value="0.01" step="0.001">
+            <label for="radius">Dot Radius (inches):</label>
+            <input type="number" id="radius" value="0.01" step="0.001">
+            <label for="opacity">Opacity (0 to 1):</label>
+            <input type="number" id="opacity" value="0.2" step="0.01" min="0" max="1">
+        </div>
+        <div class="column">
+            <label for="preview">Preview</label>
+            <canvas id="preview"></canvas>
+            <button id="generate">Generate</button>
+        </div>
     </div>
     <script>
+        function drawPreview() {
+            const canvas = document.getElementById('preview');
+            const ctx = canvas.getContext('2d');
+            const dpi = 300;
+            const spacing = parseFloat(document.getElementById('spacing').value) * dpi;
+            const lineWidth = parseFloat(document.getElementById('lineWidth').value) * dpi;
+            const radius = parseFloat(document.getElementById('radius').value) * dpi;
+            const opacity = parseFloat(document.getElementById('opacity').value);
+            const paperType = document.querySelector('input[name="paperType"]:checked').value;
+
+            canvas.width = 2 * dpi;
+            canvas.height = 2 * dpi;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.globalAlpha = opacity;
+
+            if (paperType === 'line') {
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = 'black';
+
+                for (let y = spacing; y < canvas.height; y += spacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+
+                for (let x = spacing; x < canvas.width; x += spacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+            } else if (paperType === 'dot') {
+                ctx.fillStyle = 'black';
+
+                for (let y = spacing; y < canvas.height; y += spacing) {
+                    for (let x = spacing; x < canvas.width; x += spacing) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', drawPreview);
+        });
+
         document.getElementById('generate').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const pageWidth = parseFloat(document.getElementById('pageWidth').value);
@@ -59,7 +137,7 @@
                 format: [pageWidth, pageHeight]
             });
 
-            const dpi = parseFloat(document.getElementById('dpi').value);
+            const dpi = 300;
             const spacing = parseFloat(document.getElementById('spacing').value);
             const lineWidth = parseFloat(document.getElementById('lineWidth').value);
             const radius = parseFloat(document.getElementById('radius').value);
@@ -89,6 +167,8 @@
 
             doc.save(`${paperType}_paper.pdf`);
         });
+
+        drawPreview();
     </script>
 </body>
 </html>
