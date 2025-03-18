@@ -84,11 +84,18 @@
             const canvas = document.getElementById('preview');
             const ctx = canvas.getContext('2d');
             const dpi = 300;
-            const spacing = parseFloat(document.getElementById('spacing').value) * dpi;
+            const spacingInput = document.getElementById('spacing');
+            const spacingValue = spacingInput.value;
+            const spacing = parseFloat(spacingValue) * dpi;
             const lineWidth = parseFloat(document.getElementById('lineWidth').value) * dpi;
             const radius = parseFloat(document.getElementById('radius').value) * dpi;
             const opacity = parseFloat(document.getElementById('opacity').value);
             const paperType = document.querySelector('input[name="paperType"]:checked').value;
+
+            if (spacingValue === '' || isNaN(spacing) || spacing <= 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
 
             const greyValue = Math.round(255 * (1 - opacity));
             const greyColor = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
@@ -141,11 +148,19 @@
             });
 
             const dpi = 300;
-            const spacing = parseFloat(document.getElementById('spacing').value);
+            const spacingInput = document.getElementById('spacing');
+            const spacingValue = spacingInput.value;
+            const spacing = parseFloat(spacingValue);
             const lineWidth = parseFloat(document.getElementById('lineWidth').value);
             const radius = parseFloat(document.getElementById('radius').value);
             const opacity = parseFloat(document.getElementById('opacity').value);
             const paperType = document.querySelector('input[name="paperType"]:checked').value;
+
+            if (spacingValue === '' || isNaN(spacing) || spacing <= 0) {
+                alert('Spacing must be a positive number.');
+                spacingInput.value = 0.125; // Reset to default value
+                return;
+            }
 
             if (paperType === 'line') {
                 doc.setLineWidth(lineWidth);
