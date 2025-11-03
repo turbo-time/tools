@@ -840,6 +840,14 @@ orange.png|orange
       const cardWidthInches = dims.widthInches;
       const cardHeightInches = dims.heightInches;
       const marginInches = MARGIN_PX / DPI;
+      
+      // Calculate total width and height of card grid
+      const gridWidthInches = layout.cols * cardWidthInches;
+      const gridHeightInches = layout.rows * cardHeightInches;
+      
+      // Calculate centering offsets
+      const horizontalOffset = (PAPER_WIDTH_INCHES - gridWidthInches) / 2;
+      const verticalOffset = (PAPER_HEIGHT_INCHES - gridHeightInches) / 2;
 
       // Generate front pages
       for (let i = 0; i < totalCards; i += cardsPerPage) {
@@ -851,8 +859,8 @@ orange.png|orange
           const row = Math.floor(idx / layout.cols);
           const col = idx % layout.cols;
           
-          const x = marginInches + col * cardWidthInches;
-          const y = marginInches + row * cardHeightInches;
+          const x = horizontalOffset + col * cardWidthInches;
+          const y = verticalOffset + row * cardHeightInches;
           
           pdf.addImage(cardData, 'PNG', x, y, cardWidthInches, cardHeightInches);
           
@@ -876,8 +884,8 @@ orange.png|orange
           // Mirror the column position for duplex printing
           const mirroredCol = layout.cols - 1 - col;
           
-          const x = marginInches + mirroredCol * cardWidthInches;
-          const y = marginInches + row * cardHeightInches;
+          const x = horizontalOffset + mirroredCol * cardWidthInches;
+          const y = verticalOffset + row * cardHeightInches;
           
           pdf.addImage(cardData, 'PNG', x, y, cardWidthInches, cardHeightInches);
           
